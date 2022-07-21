@@ -6,6 +6,8 @@ set(CMAKE_STATIC_LIBRARY_PREFIX)
 
 if(NOT FFI_ROOT)
     set(FFI_ROOT ${CMAKE_CURRENT_LIST_DIR})
+else()
+    message(STATUS "FFI_ROOT = ${FFI_ROOT}")
 endif()
 
 if(NOT CMAKE_SYSTEM_PROCESSOR)
@@ -13,9 +15,9 @@ if(NOT CMAKE_SYSTEM_PROCESSOR)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(FFI_SKIP_HEADERS ON)
+    set(FFI_SKIP_HEADERS ON)
 else()
-  set(FFI_CONFIG_FILE ${FFI_ROOT}/fficonfig.h)
+    set(FFI_CONFIG_FILE ${FFI_ROOT}/fficonfig.h)
 endif()
 
 if(NOT INSTALL_DIRECTORY)
@@ -37,12 +39,12 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_DIRECTORY})
 
 # debug
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(prefix "${CURRENT_INSTALLED_DIR}/debug")
-  set(exec_prefix "\${prefix}")
-  set(libdir "\${prefix}/lib")
-  set(toolexeclibdir "\${libdir}")
-  set(includedir "\${prefix}/../include")
-  configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc" @ONLY)
+    set(prefix "${CURRENT_INSTALLED_DIR}/debug")
+    set(exec_prefix "\${prefix}")
+    set(libdir "\${prefix}/lib")
+    set(toolexeclibdir "\${libdir}")
+    set(includedir "\${prefix}/../include")
+    configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc" @ONLY)
 endif()
 
 # config variables for ffi.h.in
@@ -88,21 +90,21 @@ endif()
 set(FFI_EXEC_TRAMPOLINE_TABLE 0)
 
 # mimic layout of original buildsystem
-configure_file(include/ffi.h.in ${CMAKE_BINARY_DIR}/include/ffi.h)
+configure_file(${FFI_ROOT}/include/ffi.h.in ${CMAKE_BINARY_DIR}/include/ffi.h)
 file(COPY ${FFI_CONFIG_FILE} DESTINATION ${CMAKE_BINARY_DIR})
 
 if ("${TARGET}" STREQUAL "ARM_WIN64" OR "${TARGET}" STREQUAL "ARM64")
-    file(COPY src/aarch64/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/aarch64/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
 elseif ("${TARGET}" STREQUAL "ARM_WIN32" OR "${TARGET}" STREQUAL "ARM")
-    file(COPY src/arm/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/arm/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
 else()
-    file(COPY src/x86/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/x86/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
 endif()
 
 set(FFI_INCLUDE_DIRS
-  PATHS ${CMAKE_BINARY_DIR}/include
-        ${CMAKE_BINARY_DIR}
-        include)
+    PATHS ${CMAKE_BINARY_DIR}/include
+    ${CMAKE_BINARY_DIR}
+    include)
 
 # include_directories(${CMAKE_BINARY_DIR}/include)
 # include_directories(${CMAKE_BINARY_DIR})
@@ -110,44 +112,44 @@ set(FFI_INCLUDE_DIRS
 include_directories(${FFI_INCLUDE_DIRS})
 
 if (NOT FFI_USE_SHARED_LIBS)
-  add_definitions(-DFFI_BUILDING)
+    add_definitions(-DFFI_BUILDING)
 endif()
 if((BUILD_SHARED_LIBS OR FFI_USE_SHARED_LIBS) AND WIN32)
     add_definitions(-DFFI_BUILDING_DLL)
 endif()
 
 set(FFI_SOURCES
-    src/closures.c
-    src/prep_cif.c
-    src/types.c
-    src/tramp.c)
+    ${FFI_ROOT}/src/closures.c
+    ${FFI_ROOT}/src/prep_cif.c
+    ${FFI_ROOT}/src/types.c
+    ${FFI_ROOT}/src/tramp.c)
 
 if ("${TARGET}" STREQUAL "ARM_WIN64" OR "${TARGET}" STREQUAL "ARM64")
     set(FFI_SOURCES
         ${FFI_SOURCES}
-        src/aarch64/ffi.c)
+        ${FFI_ROOT}/src/aarch64/ffi.c)
 elseif("${TARGET}" STREQUAL "ARM_WIN32" OR "${TARGET}" STREQUAL "ARM")
     set(FFI_SOURCES
         ${FFI_SOURCES}
-        src/arm/ffi.c)
+        ${FFI_ROOT}/src/arm/ffi.c)
 else()
     set(FFI_SOURCES
         ${FFI_SOURCES}
-        src/java_raw_api.c
-        src/raw_api.c)
+        ${FFI_ROOT}/src/java_raw_api.c
+        ${FFI_ROOT}/src/raw_api.c)
     if("${TARGET}" STREQUAL "X86_WIN32" OR "${TARGET}" STREQUAL "X86_DARWIN" OR "${TARGET}" STREQUAL "X86")
         set(FFI_SOURCES
             ${FFI_SOURCES}
-            src/x86/ffi.c)
+            ${FFI_ROOT}/src/x86/ffi.c)
     elseif("${TARGET}" STREQUAL "X86_WIN64")
         set(FFI_SOURCES
             ${FFI_SOURCES}
-            src/x86/ffiw64.c)
+            ${FFI_ROOT}/src/x86/ffiw64.c)
     elseif("${TARGET}" STREQUAL "X86_64")
         set(FFI_SOURCES
             ${FFI_SOURCES}
-            src/x86/ffi64.c
-            src/x86/ffiw64.c)
+            ${FFI_ROOT}/src/x86/ffi64.c
+            ${FFI_ROOT}/src/x86/ffiw64.c)
     endif()
 endif()
 
@@ -202,62 +204,62 @@ if("${TARGET}" STREQUAL "X86")
 endif()
 
 if("${TARGET}" STREQUAL "X86" OR "${TARGET}" STREQUAL "X86_DARWIN")
-    add_assembly(src/x86/sysv.S)
+    add_assembly(${FFI_ROOT}/src/x86/sysv.S)
 elseif("${TARGET}" STREQUAL "X86_64")
-    add_assembly(src/x86/unix64.S)
-    add_assembly(src/x86/win64.S)
+    add_assembly(${FFI_ROOT}/src/x86/unix64.S)
+    add_assembly(${FFI_ROOT}/src/x86/win64.S)
 elseif("${TARGET}" STREQUAL "X86_WIN32")
     if(MSVC)
-        add_assembly(src/x86/sysv_intel.S)
+        add_assembly(${FFI_ROOT}/src/x86/sysv_intel.S)
     else()
-        add_assembly(src/x86/sysv.S)
+        add_assembly(${FFI_ROOT}/src/x86/sysv.S)
     endif()
 elseif("${TARGET}" STREQUAL "X86_WIN64")
     if(MSVC)
-        add_assembly(src/x86/win64_intel.S)
+        add_assembly(${FFI_ROOT}/src/x86/win64_intel.S)
     else()
-        add_assembly(src/x86/win64.S)
+        add_assembly(${FFI_ROOT}/src/x86/win64.S)
     endif()
 elseif("${TARGET}" STREQUAL "ARM_WIN32")
     if(MSVC)
-        add_assembly(src/arm/sysv_msvc_arm32.S)
+        add_assembly(${FFI_ROOT}/src/arm/sysv_msvc_arm32.S)
     else()
-        add_assembly(src/arm/sysv.S)
+        add_assembly(${FFI_ROOT}/src/arm/sysv.S)
     endif()
 elseif("${TARGET}" STREQUAL "ARM")
-    add_assembly(src/arm/sysv.S)
+    add_assembly(${FFI_ROOT}/src/arm/sysv.S)
 elseif("${TARGET}" STREQUAL "ARM_WIN64")
     if(MSVC)
-        add_assembly(src/aarch64/win64_armasm.S)
+        add_assembly(${FFI_ROOT}/src/aarch64/win64_armasm.S)
     else()
-        add_assembly(src/aarch64/sysv.S)
+        add_assembly(${FFI_ROOT}/src/aarch64/sysv.S)
     endif()
 elseif("${TARGET}" STREQUAL "ARM64")
-    add_assembly(src/aarch64/sysv.S)
+    add_assembly(${FFI_ROOT}/src/aarch64/sysv.S)
 else()
     message(FATAL_ERROR "Target not implemented")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND FFI_SOURCES src/debug.c)
+    list(APPEND FFI_SOURCES ${FFI_ROOT}/src/debug.c)
     add_definitions(-DFFI_DEBUG)
 endif()
 
 function(string_replace source search replacement)
-  file(READ ${source} FILE_CONTENTS)
-  string(REPLACE ${search} ${replacement} NEW_CONTENT "${FILE_CONTENTS}")
-  file(WRITE ${source} "${NEW_CONTENT}")
+    file(READ ${source} FILE_CONTENTS)
+    string(REPLACE ${search} ${replacement} NEW_CONTENT "${FILE_CONTENTS}")
+    file(WRITE ${source} "${NEW_CONTENT}")
 endfunction()
 
 if(WIN32 OR MINGW)
-  if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Release")
-    string_replace("${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc"
-      "-lffi" "-llibffi")
-  endif()
-  if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string_replace("${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc"
-      "-lffi" "-llibffi")
-  endif()
+    if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Release")
+        string_replace("${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc"
+            "-lffi" "-llibffi")
+    endif()
+    if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+        string_replace("${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc"
+            "-lffi" "-llibffi")
+    endif()
 endif()
 
 add_library(libffi ${FFI_SOURCES})
@@ -270,9 +272,9 @@ install(TARGETS libffi
 
 include(CMakePackageConfigHelpers)
 
-configure_package_config_file(${PROJECT_NAME}Config.cmake.in
-     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-     INSTALL_DESTINATION share/${PROJECT_NAME})
+configure_package_config_file(${FFI_ROOT}/${PROJECT_NAME}Config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION share/${PROJECT_NAME})
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${VERSION}
