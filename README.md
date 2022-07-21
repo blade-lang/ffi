@@ -6,7 +6,7 @@ which replaced the default build system with a CMake build system.
 ---------------------------------------------------------------------
 
 libffi-3.4.1 was released on June 28, 2021.  Check the libffi web page
-for updates: <URL:http://sourceware.org/libffi/>.
+for updates: [http://sourceware.org/libffi](http://sourceware.org/libffi).
 
 
 What is libffi?
@@ -123,81 +123,58 @@ tested:
 Please send additional platform test results to
 libffi-discuss@sourceware.org.
 
-Installing libffi
-=================
+Building and Installing FFI
+===========================
 
-First you must configure the distribution for your particular
-system. Go to the directory you wish to build libffi in and run the
-"configure" program found in the root directory of the libffi source
-distribution.  Note that building libffi requires a C99 compatible
-compiler.
+FFI can be built and installed using the following standard cmake 
+routine commands:
 
-If you're building libffi directly from git hosted sources, configure
-won't exist yet; run ./autogen.sh first.  This will require that you
-install autoconf, automake and libtool.
+```sh
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+cmake --install . 
+```
 
-You may want to tell configure where to install the libffi library and
-header files. To do that, use the ``--prefix`` configure switch.  Libffi
-will install under /usr/local by default.
+The above commands create a new directory `build`, configures and build
+the library as well as install it into the directory `build/out`. This 
+directory will contain two subdirectories namely `lib` and `include`
+housing the library and include headers respectively.
 
-If you want to enable extra run-time debugging checks use the the
-``--enable-debug`` configure switch. This is useful when your program dies
-mysteriously while using libffi.
+You may choose to change the install location by passing the 
+`-DINSTALL_DIRECTORY=/custom/path` to the cmake files generation step.
+For example:
 
-Another useful configure switch is ``--enable-purify-safety``. Using this
-will add some extra code which will suppress certain warnings when you
-are using Purify with libffi. Only use this switch when using
-Purify, as it will slow down the library.
+```sh
+cmake .. -DINSTALL_DIRECTORY=/usr/local
+cmake --build .
+cmake --install . 
+```
 
-If you don't want to build documentation, use the ``--disable-docs``
-configure switch.
-
-It's also possible to build libffi on Windows platforms with
-Microsoft's Visual C++ compiler.  In this case, use the msvcc.sh
-wrapper script during configuration like so:
-
-    path/to/configure CC=path/to/msvcc.sh CXX=path/to/msvcc.sh LD=link CPP="cl -nologo -EP" CPPFLAGS="-DFFI_BUILDING_DLL"
-
-For 64-bit Windows builds, use ``CC="path/to/msvcc.sh -m64"`` and
-``CXX="path/to/msvcc.sh -m64"``.  You may also need to specify
-``--build`` appropriately.
-
-It is also possible to build libffi on Windows platforms with the LLVM
-project's clang-cl compiler, like below:
-
-    path/to/configure CC="path/to/msvcc.sh -clang-cl" CXX="path/to/msvcc.sh -clang-cl" LD=link CPP="clang-cl -EP"
-
-When building with MSVC under a MingW environment, you may need to
-remove the line in configure that sets 'fix_srcfile_path' to a 'cygpath'
-command.  ('cygpath' is not present in MingW, and is not required when
-using MingW-style paths.)
-
-To build static library for ARM64 with MSVC using visual studio solution, msvc_build folder have
-   aarch64/Ffi_staticLib.sln
-   required header files in aarch64/aarch64_include/
+The above example installs the the library to the default installation
+path for Unix/GNU.
 
 
-SPARC Solaris builds require the use of the GNU assembler and linker.
-Point ``AS`` and ``LD`` environment variables at those tool prior to
-configuration.
+Exported Variables
+==================
 
-For iOS builds, the ``libffi.xcodeproj`` Xcode project is available.
+This library exports the following important CMake variables to allow easy
+integration into existing CMake build processes similiar to what you'll get
+using an equivalent CMake `find_package()` command.
 
-Configure has many other options. Use ``configure --help`` to see them all.
-
-Once configure has finished, type "make". Note that you must be using
-GNU make.  You can ftp GNU make from ftp.gnu.org:/pub/gnu/make .
-
-To ensure that libffi is working as advertised, type "make check".
-This will require that you have DejaGNU installed.
-
-To install the library and header files, type ``make install``.
+- `FFI_VERION`: The libffi version.
+- `FFI_TARGET`: The target platform for which this library has been built.
+- `FFI_INCLUDE_DIRS`: A variable that can be passed to CMake `include_directories()`
+  to allow importing the exported headers in other projects.
+- `FFI_LIBRARIES`: A variable that can be passed to CMake `target_link_libraries()`
+  to allow linking to the built library.
 
 
 History
 =======
 
-See the git log for details at http://github.com/libffi/libffi.
+See the git log for details at [http://github.com/libffi/libffi](http://github.com/libffi/libffi).
 
     3.4.2 Jun-28-21
         Add static trampoline support for Linux on x86_64 and ARM64.
@@ -422,7 +399,7 @@ See the git log for details at http://github.com/libffi/libffi.
 Authors & Credits
 =================
 
-libffi was originally written by Anthony Green <green@moxielogic.com>.
+libffi was originally written by Anthony Green <[green@moxielogic.com](mailto:green@moxielogic.com)>.
 
 The developers of the GNU Compiler Collection project have made
 innumerable valuable contributions.  See the ChangeLog file for
@@ -490,10 +467,10 @@ The list above is almost certainly incomplete and inaccurate.  I'm
 happy to make corrections or additions upon request.
 
 If you have a problem, or have found a bug, please file an issue on
-our issue tracker at https://github.com/libffi/libffi/issues.
+our issue tracker at [https://github.com/libffi/libffi/issues](https://github.com/libffi/libffi/issues).
 
 The author can be reached at green@moxielogic.com.
 
 To subscribe/unsubscribe to our mailing lists, visit:
-https://sourceware.org/mailman/listinfo/libffi-announce
-https://sourceware.org/mailman/listinfo/libffi-discuss
+[https://sourceware.org/mailman/listinfo/libffi-announce](https://sourceware.org/mailman/listinfo/libffi-announce)
+[https://sourceware.org/mailman/listinfo/libffi-discuss](https://sourceware.org/mailman/listinfo/libffi-discuss)

@@ -14,6 +14,11 @@ else()
   set(FFI_CONFIG_FILE ${CMAKE_CURRENT_LIST_DIR}/fficonfig.h)
 endif()
 
+if(NOT INSTALL_DIRECTORY)
+    set(INSTALL_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+endif()
+
+
 # Create pkgconfig file
 set(PACKAGE_VERSION ${VERSION})
 set(prefix "${CMAKE_BINARY_DIR}")
@@ -21,10 +26,10 @@ set(exec_prefix "\${prefix}")
 set(libdir "\${prefix}/lib")
 set(toolexeclibdir "\${libdir}")
 set(includedir "\${prefix}/include")
-configure_file("${CMAKE_SOURCE_DIR}/libffi.pc.in" "${CMAKE_BINARY_DIR}/lib/pkgconfig/libffi.pc" @ONLY)
+configure_file("${CMAKE_SOURCE_DIR}/libffi.pc.in" "${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc" @ONLY)
 
 message(STATUS "Building to ${prefix}")
-set(CMAKE_INSTALL_PREFIX ${prefix})
+set(CMAKE_INSTALL_PREFIX ${INSTALL_DIRECTORY})
 
 # debug
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -33,7 +38,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(libdir "\${prefix}/lib")
   set(toolexeclibdir "\${libdir}")
   set(includedir "\${prefix}/../include")
-  configure_file("${CMAKE_SOURCE_DIR}/libffi.pc.in" "${CMAKE_BINARY_DIR}/debug/lib/pkgconfig/libffi.pc" @ONLY)
+  configure_file("${CMAKE_SOURCE_DIR}/libffi.pc.in" "${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc" @ONLY)
 endif()
 
 # config variables for ffi.h.in
@@ -100,10 +105,10 @@ set(FFI_INCLUDE_DIRS
 # include_directories(include)
 include_directories(${FFI_INCLUDE_DIRS})
 
-if (NOT FFI_USE_STATIC_LIBS)
+if (NOT FFI_USE_SHARED_LIBS)
   add_definitions(-DFFI_BUILDING)
 endif()
-if(BUILD_SHARED_LIBS AND WIN32)
+if((BUILD_SHARED_LIBS OR FFI_USE_SHARED_LIBS) AND WIN32)
     add_definitions(-DFFI_BUILDING_DLL)
 endif()
 
@@ -242,11 +247,11 @@ endfunction()
 
 if(WIN32 OR MINGW)
   if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Release")
-    string_replace("${CMAKE_BINARY_DIR}/lib/pkgconfig/libffi.pc"
+    string_replace("${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc"
       "-lffi" "-llibffi")
   endif()
   if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string_replace("${CMAKE_BINARY_DIR}/debug/lib/pkgconfig/libffi.pc"
+    string_replace("${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc"
       "-lffi" "-llibffi")
   endif()
 endif()
@@ -255,9 +260,9 @@ add_library(libffi ${FFI_SOURCES})
 
 install(TARGETS libffi
     EXPORT ${PROJECT_NAME}Targets
-    RUNTIME DESTINATION out/lib
-    ARCHIVE DESTINATION out/lib
-    LIBRARY DESTINATION out/lib)
+    RUNTIME DESTINATION lib
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib)
 
 include(CMakePackageConfigHelpers)
 
@@ -273,7 +278,7 @@ if(NOT FFI_SKIP_HEADERS)
     install(FILES
         ${CMAKE_BINARY_DIR}/include/ffi.h
         ${CMAKE_BINARY_DIR}/include/ffitarget.h
-        DESTINATION out/include)
+        DESTINATION include)
 endif()
 
 set(FFI_VERION ${VERSION})
