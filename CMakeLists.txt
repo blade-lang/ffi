@@ -281,6 +281,6 @@ if(NOT FFI_SKIP_HEADERS)
         DESTINATION include)
 endif()
 
-set(FFI_VERION ${VERSION})
+set(FFI_VERSION ${VERSION})
 set(FFI_TARGET ${TARGET})
 set(FFI_LIBRARIES $<TARGET_FILE:libffi>)
