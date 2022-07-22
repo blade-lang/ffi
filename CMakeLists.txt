@@ -104,7 +104,8 @@ endif()
 set(FFI_INCLUDE_DIRS
     PATHS ${CMAKE_BINARY_DIR}/include
     ${CMAKE_BINARY_DIR}
-    ${FFI_ROOT}/include)
+    ${FFI_ROOT}/include
+    ${FFI_ROOT})
 
 #include_directories(${CMAKE_BINARY_DIR}/include)
 #include_directories(${CMAKE_BINARY_DIR})
