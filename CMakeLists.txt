@@ -21,7 +21,7 @@ else()
 endif()
 
 if(NOT INSTALL_DIRECTORY)
-    set(INSTALL_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+    set(INSTALL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/out)
 endif()
 
 if(WIN32 OR MINGW)
@@ -31,12 +31,12 @@ endif()
 
 # Create pkgconfig file
 set(PACKAGE_VERSION ${VERSION})
-set(prefix "${CMAKE_BINARY_DIR}")
+set(prefix "${CMAKE_CURRENT_BINARY_DIR}")
 set(exec_prefix "\${prefix}")
 set(libdir "\${prefix}/lib")
 set(toolexeclibdir "\${libdir}")
 set(includedir "\${prefix}/include")
-configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc" @ONLY)
+configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/conf/pkgconfig/libffi.pc" @ONLY)
 
 message(STATUS "Building to ${prefix}")
 set(CMAKE_INSTALL_PREFIX ${INSTALL_DIRECTORY})
@@ -48,7 +48,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(libdir "\${prefix}/lib")
     set(toolexeclibdir "\${libdir}")
     set(includedir "\${prefix}/../include")
-    configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc" @ONLY)
+    configure_file("${FFI_ROOT}/libffi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc" @ONLY)
 endif()
 
 # config variables for ffi.h.in
@@ -94,20 +94,20 @@ endif()
 set(FFI_EXEC_TRAMPOLINE_TABLE 0)
 
 # mimic layout of original buildsystem
-configure_file(${FFI_ROOT}/include/ffi.h.in ${CMAKE_BINARY_DIR}/include/ffi.h)
-file(COPY ${FFI_CONFIG_FILE} DESTINATION ${CMAKE_BINARY_DIR})
+configure_file(${FFI_ROOT}/include/ffi.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/ffi.h)
+file(COPY ${FFI_CONFIG_FILE} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 if ("${TARGET}" STREQUAL "ARM_WIN64" OR "${TARGET}" STREQUAL "ARM64")
-    file(COPY ${FFI_ROOT}/src/aarch64/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/aarch64/ffitarget.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include)
 elseif ("${TARGET}" STREQUAL "ARM_WIN32" OR "${TARGET}" STREQUAL "ARM")
-    file(COPY ${FFI_ROOT}/src/arm/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/arm/ffitarget.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include)
 else()
-    file(COPY ${FFI_ROOT}/src/x86/ffitarget.h DESTINATION ${CMAKE_BINARY_DIR}/include)
+    file(COPY ${FFI_ROOT}/src/x86/ffitarget.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include)
 endif()
 
 set(FFI_INCLUDE_DIRS
-    PATHS ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_BINARY_DIR}
+    PATHS ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${FFI_ROOT}/include
     ${FFI_ROOT})
 
@@ -172,7 +172,7 @@ macro(add_assembly ASMFILE)
 
         execute_process(
             COMMAND ${CMAKE_C_COMPILER} /nologo /EP /I. /Iinclude /I${CMAKE_CURRENT_SOURCE_DIR}/include "${ASMFILE_FULL}"
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             OUTPUT_FILE ${ARCH_ASM_NAME}.asm
             RESULT_VARIABLE retcode
         )
@@ -187,7 +187,7 @@ macro(add_assembly ASMFILE)
         # which in turn causes MSBUILD to stop.
         execute_process(
             COMMAND ${ARCH_ASSEMBLER} ${ARCH_ASM_NAME}.asm
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             RESULT_VARIABLE retcode
         )
 
@@ -195,7 +195,7 @@ macro(add_assembly ASMFILE)
             message(FATAL_ERROR "Unable to compile assembly, exit code: '${retcode}'.")
         endif()
 
-        list(APPEND FFI_SOURCES ${CMAKE_BINARY_DIR}/${ARCH_ASM_NAME}.obj)
+        list(APPEND FFI_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_ASM_NAME}.obj)
     else()
         list(APPEND FFI_SOURCES ${ASMFILE})
     endif()
@@ -257,11 +257,11 @@ endfunction()
 
 if(WIN32 OR MINGW)
     if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Release")
-        string_replace("${CMAKE_BINARY_DIR}/conf/pkgconfig/libffi.pc"
+        string_replace("${CMAKE_CURRENT_BINARY_DIR}/conf/pkgconfig/libffi.pc"
             "-lffi" "-llibffi")
     endif()
     if(NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Debug")
-        string_replace("${CMAKE_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc"
+        string_replace("${CMAKE_CURRENT_BINARY_DIR}/debug/conf/pkgconfig/libffi.pc"
             "-lffi" "-llibffi")
     endif()
 endif()
@@ -286,8 +286,8 @@ write_basic_package_version_file(
 
 if(NOT FFI_SKIP_HEADERS)
     install(FILES
-        ${CMAKE_BINARY_DIR}/include/ffi.h
-        ${CMAKE_BINARY_DIR}/include/ffitarget.h
+        ${CMAKE_CURRENT_BINARY_DIR}/include/ffi.h
+        ${CMAKE_CURRENT_BINARY_DIR}/include/ffitarget.h
         DESTINATION include)
 endif()
 
