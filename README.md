@@ -163,7 +163,7 @@ This library exports the following important CMake variables to allow easy
 integration into existing CMake build processes similiar to what you'll get
 using an equivalent CMake `find_package()` command.
 
-- `FFI_VERSION`: The libffi version.
+- `FFI_VERION`: The libffi version.
 - `FFI_TARGET`: The target platform for which this library has been built.
 - `FFI_INCLUDE_DIRS`: A variable that can be passed to CMake `include_directories()`
   to allow importing the exported headers in other projects.

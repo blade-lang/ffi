@@ -24,6 +24,10 @@ if(NOT INSTALL_DIRECTORY)
     set(INSTALL_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 endif()
 
+if(WIN32 OR MINGW)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations -Wno-pointer-to-int-cast")
+endif()
+
 
 # Create pkgconfig file
 set(PACKAGE_VERSION ${VERSION})
@@ -107,9 +111,6 @@ set(FFI_INCLUDE_DIRS
     ${FFI_ROOT}/include
     ${FFI_ROOT})
 
-#include_directories(${CMAKE_BINARY_DIR}/include)
-#include_directories(${CMAKE_BINARY_DIR})
-#include_directories(include)
 include_directories(${FFI_INCLUDE_DIRS})
 
 if (NOT FFI_USE_SHARED_LIBS)
@@ -207,7 +208,9 @@ endif()
 if("${TARGET}" STREQUAL "X86" OR "${TARGET}" STREQUAL "X86_DARWIN")
     add_assembly(${FFI_ROOT}/src/x86/sysv.S)
 elseif("${TARGET}" STREQUAL "X86_64")
-    add_assembly(${FFI_ROOT}/src/x86/unix64.S)
+#    if(NOT MSVC AND NOT MINGW)
+        add_assembly(${FFI_ROOT}/src/x86/unix64.S)
+#    endif()
     add_assembly(${FFI_ROOT}/src/x86/win64.S)
 elseif("${TARGET}" STREQUAL "X86_WIN32")
     if(MSVC)
