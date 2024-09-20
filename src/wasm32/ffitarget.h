@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------*-C-*-
-   ffitarget.h - Copyright (c) 2013 Tensilica, Inc.
-   Target configuration macros for XTENSA.
+   ffitarget.h - Copyright (c) 2018-2023  Hood Chatham, Brion Vibber, Kleis Auke Wolthuizen, and others.
+
+   Target configuration macros for wasm32.
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -21,6 +22,7 @@
    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
    DEALINGS IN THE SOFTWARE.
+
    ----------------------------------------------------------------------- */
 
 #ifndef LIBFFI_TARGET_H
@@ -30,28 +32,31 @@
 #error "Please do not include ffitarget.h directly into your source.  Use ffi.h instead."
 #endif
 
-#ifndef LIBFFI_ASM
-typedef unsigned long	ffi_arg;
-typedef signed long	ffi_sarg;
+/* ---- Generic type definitions ----------------------------------------- */
+
+typedef unsigned long ffi_arg;
+typedef signed long ffi_sarg;
+
+// TODO: https://github.com/emscripten-core/emscripten/issues/9868
+typedef void (*ffi_fp)(void);
 
 typedef enum ffi_abi {
   FFI_FIRST_ABI = 0,
-  FFI_SYSV,
+  FFI_WASM32, // "raw", no structures, varargs, or closures (not implemented!)
+  FFI_WASM32_EMSCRIPTEN, // structures, varargs, and split 64-bit params
   FFI_LAST_ABI,
-  FFI_DEFAULT_ABI = FFI_SYSV
-} ffi_abi;
+#ifdef __EMSCRIPTEN__
+  FFI_DEFAULT_ABI = FFI_WASM32_EMSCRIPTEN
+#else
+  FFI_DEFAULT_ABI = FFI_WASM32
 #endif
-
-#define FFI_REGISTER_NARGS	6
-#define XTENSA_STACK_ALIGNMENT	16
-#define FFI_REGISTER_ARGS_SPACE ((FFI_REGISTER_NARGS * 4 + \
-				  XTENSA_STACK_ALIGNMENT - 1) & \
-				  -XTENSA_STACK_ALIGNMENT)
-
-/* ---- Definitions for closures ----------------------------------------- */
+} ffi_abi;
 
 #define FFI_CLOSURES 1
-#define FFI_NATIVE_RAW_API 0
-#define FFI_TRAMPOLINE_SIZE 24
+// #define FFI_GO_CLOSURES 0
+#define FFI_TRAMPOLINE_SIZE 4
+// #define FFI_NATIVE_RAW_API 0
+#define FFI_TARGET_SPECIFIC_VARIADIC 1
+#define FFI_EXTRA_CIF_FIELDS  unsigned int nfixedargs
 
 #endif
